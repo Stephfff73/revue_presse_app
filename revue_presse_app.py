@@ -1,5 +1,5 @@
 """
-Revue de presse de la DPIEC — app Streamlit
+Revue de presse de la DPIEC - app Streamlit
 =============================================
 Reproduit l'identite visuelle in'li (ruban rose, bandeau teal, logo,
 liseret rayures) de la revue Canva actuelle, en remplacant uniquement
@@ -652,7 +652,7 @@ _ICONE_JOURNAL_SVG = """<svg width="24" height="24" viewBox="0 0 24 24" fill="no
 
 _badge_brouillon_html = (
     f'<div class="badge-brouillon">💾 {len(st.session_state.articles)} article(s) enregistré(s) '
-    'automatiquement — vous pouvez fermer la session et reprendre plus tard</div>'
+    'automatiquement, vous pouvez fermer la session et reprendre plus tard</div>'
     if st.session_state.articles
     else ""
 )
@@ -664,7 +664,7 @@ st.markdown(
     <div class="icone">{_ICONE_JOURNAL_SVG}</div>
     <h1>Revue de presse de la DPIEC</h1>
   </div>
-  <p class="sous-titre">Déposez vos captures d'écran, complétez les quelques champs ci-dessous, puis générez une page reprenant l'identité visuelle in'li — à envoyer ou publier pour vos collègues.</p>
+  <p class="sous-titre">Déposez vos captures d'écran, complétez les quelques champs ci-dessous, puis générez une page reprenant l'identité visuelle in'li ; à envoyer ou publier pour vos collègues.</p>
   {_badge_brouillon_html}
 </div>
 """,
