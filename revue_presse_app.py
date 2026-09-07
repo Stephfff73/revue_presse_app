@@ -79,10 +79,26 @@ def supprimer_article(article_id):
 # --------------------------------------------------------------------------
 
 RIBBON_COUVERTURE_SVG = """
-<svg class="ruban-couverture" width="190" height="150" viewBox="0 0 190 150" xmlns="http://www.w3.org/2000/svg">
-  <polygon points="0,0 150,0 0,120" fill="#EB295D"/>
-  <polygon points="0,75 55,105 0,150" fill="#7A1030"/>
-  <polygon points="0,108 34,128 0,150" fill="#F2F4F5"/>
+<svg class="ruban-couverture" width="230" height="180" viewBox="0 0 230 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="degradeRose" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF4577"/>
+      <stop offset="100%" stop-color="#C8134E"/>
+    </linearGradient>
+    <linearGradient id="degradeRoseFonce" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9C1440"/>
+      <stop offset="100%" stop-color="#5E0C26"/>
+    </linearGradient>
+    <filter id="ombreRuban" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g filter="url(#ombreRuban)">
+    <polygon points="0,0 182,0 0,146" fill="url(#degradeRose)"/>
+    <polygon points="0,92 66,128 0,180" fill="url(#degradeRoseFonce)"/>
+  </g>
+  <polygon points="0,110 40,132 0,164" fill="#F2F4F5"/>
+  <polyline points="0,4 178,4" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="2"/>
 </svg>
 """
 
@@ -186,55 +202,86 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
   /* ---- Couverture ---- */
   .couverture {{
     position: relative;
-    background: var(--gris-clair);
+    background:
+      radial-gradient(1100px 240px at 88% -20%, rgba(0,78,82,0.06), transparent 60%),
+      linear-gradient(165deg, #F7F8F8 0%, #EDEFF0 55%, #E7EAEA 100%);
     overflow: hidden;
-    padding: 0 0 30px;
+    padding: 0 0 34px;
+    box-shadow: 0 18px 34px -22px rgba(4, 30, 32, 0.55);
   }}
   .couverture .barre-haute {{
     height: 14px;
-    background: var(--teal);
+    background: linear-gradient(90deg, #013E42 0%, var(--teal) 45%, var(--teal-clair) 100%);
   }}
   .ruban-couverture {{
     position: absolute;
     top: 14px;
     left: 0;
   }}
+  .motif-points {{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 260px;
+    height: 100%;
+    background-image: radial-gradient(circle, rgba(0,78,82,0.13) 1.6px, transparent 1.6px);
+    background-size: 16px 16px;
+    -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 85%);
+            mask-image: linear-gradient(to left, #000 0%, transparent 85%);
+    pointer-events: none;
+  }}
   .couverture-corps {{
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     flex-wrap: wrap;
     gap: 16px;
-    padding: 46px 40px 10px 190px;
+    padding: 54px 44px 12px 200px;
   }}
   .couverture h1 {{
     font-family: 'Poppins', sans-serif;
     font-weight: 800;
-    font-size: 2.3rem;
+    font-size: 2.6rem;
+    letter-spacing: -0.015em;
     color: var(--rose);
     margin: 0;
-    line-height: 1.1;
+    line-height: 1.08;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.6);
   }}
   .couverture .edition {{
     text-align: right;
     white-space: nowrap;
+    background: rgba(255,255,255,0.65);
+    border: 1.5px solid rgba(0,78,82,0.25);
+    border-radius: 999px;
+    padding: 9px 20px;
+    backdrop-filter: blur(2px);
   }}
   .couverture .edition .num {{
     font-style: italic;
     color: var(--teal-clair);
-    font-size: 1.05rem;
+    font-size: 1rem;
     display: block;
   }}
   .couverture .edition .date {{
     font-weight: 700;
     color: var(--teal);
-    font-size: 1.15rem;
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
   }}
   .intro {{
-    padding: 6px 40px 4px 190px;
+    position: relative;
+    padding: 10px 44px 4px 200px;
     color: var(--texte-doux);
     font-size: 1.02rem;
-    max-width: 60ch;
+    max-width: 58ch;
+  }}
+  .rayures-fine {{
+    height: 8px;
+    background: repeating-linear-gradient(
+      -45deg, var(--rose), var(--rose) 8px, #FFFFFF 8px, #FFFFFF 16px
+    );
   }}
 
   /* ---- Sommaire ---- */
@@ -359,7 +406,7 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
   .rayures {{
     height: 16px;
     background: repeating-linear-gradient(
-      -45deg, var(--teal) 0 10px, #FFFFFF 10px 20px
+      -45deg, var(--teal), var(--teal) 10px, #FFFFFF 10px, #FFFFFF 20px
     );
   }}
 
@@ -374,6 +421,7 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
 
   <div class="couverture">
     <div class="barre-haute"></div>
+    <div class="motif-points"></div>
     {RIBBON_COUVERTURE_SVG}
     <div class="couverture-corps">
       <h1>{titre_revue}</h1>
@@ -384,6 +432,7 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
     </div>
     {f'<p class="intro">{intro}</p>' if intro else ''}
   </div>
+  <div class="rayures-fine"></div>
 
   <nav class="sommaire">
     <h2>DANS CETTE EDITION</h2>
@@ -396,7 +445,7 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
 
   <footer class="pied">
     <img src="data:image/png;base64,{LOGO_INLI_B64}" alt="in'li - Groupe Action Logement">
-    <p>Revue de presse preparee pour un usage interne / {len(articles)} article(s) cette semaine.</p>
+    <p>Revue de presse préparée pour un usage interne / {len(articles)} article(s) cette semaine.</p>
   </footer>
   <div class="rayures"></div>
 
