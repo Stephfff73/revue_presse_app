@@ -26,9 +26,9 @@ from PIL import Image
 st.set_page_config(page_title="Revue de presse — DPIEC", page_icon="📰", layout="wide")
 
 THEMES_PAR_DEFAUT = [
-    "Logement social",
-    "Marche immobilier",
-    "Reglementation & politique du logement",
+    "Logement intermédiaire/social",
+    "Marché immobilier",
+    "Réglementation & politique du logement",
     "Territoires & urbanisme",
     "Autre",
 ]
