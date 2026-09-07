@@ -411,7 +411,7 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
 st.title("📰 Revue de presse de la DPIEC")
 st.caption(
     "Deposez vos captures d'ecran, completez les quelques champs ci-dessous, "
-    "puis generez une page reprenant l'identite visuelle in'li — a envoyer a vos collegues."
+    "puis générez une page, reprenant l'identité visuelle in'li, a envoyer a vos collègues."
 )
 
 with st.sidebar:
