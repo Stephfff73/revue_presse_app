@@ -808,7 +808,7 @@ else:
                     }
                 )
                 sauvegarder_brouillon()
-                st.success("Article ajoute — et enregistré automatiquement.")
+                st.success("✅ Article ajouté et enregistré automatiquement.")
 
 st.divider()
 col_titre_liste, col_vider = st.columns([4, 1])
