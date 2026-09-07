@@ -23,7 +23,7 @@ from PIL import Image
 # Configuration generale
 # --------------------------------------------------------------------------
 
-st.set_page_config(page_title="Revue de presse — DPIEC", page_icon="📰", layout="wide")
+st.set_page_config(page_title="Revue de presse - DPIEC", page_icon="📰", layout="wide")
 
 THEMES_PAR_DEFAUT = [
     "Logement intermédiaire/social",
@@ -395,8 +395,8 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
   {sections_html}
 
   <footer class="pied">
-    <img src="data:image/png;base64,{LOGO_INLI_B64}" alt="in'li — Groupe Action Logement">
-    <p>Revue de presse preparee pour un usage interne — {len(articles)} article(s) cette semaine.</p>
+    <img src="data:image/png;base64,{LOGO_INLI_B64}" alt="in'li - Groupe Action Logement">
+    <p>Revue de presse preparee pour un usage interne / {len(articles)} article(s) cette semaine.</p>
   </footer>
   <div class="rayures"></div>
 
@@ -486,7 +486,7 @@ st.divider()
 st.subheader(f"Articles de la semaine ({len(st.session_state.articles)})")
 
 if not st.session_state.articles:
-    st.info("Aucun article pour l'instant — ajoutez votre premiere capture ci-dessus.")
+    st.info("Aucun article pour l'instant => Ajoutez votre premiere capture ci-dessus.")
 else:
     for i, article in enumerate(st.session_state.articles):
         with st.container(border=True):
@@ -494,7 +494,7 @@ else:
             col_img.image(article["image"], width=120)
             col_texte.markdown(
                 f"**{article['titre'] or article['source']}**  \\n"
-                f"{article['source']}, {article['date']} — *{article['theme']}*  \\n"
+                f"{article['source']}, {article['date']} - *{article['theme']}*  \\n"
                 f"{article['synthese']}"
             )
             with col_actions:
