@@ -83,6 +83,49 @@ if "editing_id" not in st.session_state:
 
 
 # --------------------------------------------------------------------------
+# Publication pour les destinataires — ecrit l'edition dans un dossier partage
+# lu par l'app de consultation (revue_presse_consultation.py)
+# --------------------------------------------------------------------------
+
+PUBLICATION_DIR = DOSSIER_APP / "revues_publiees"
+MANIFEST_PUBLICATION = PUBLICATION_DIR / "manifest.json"
+
+
+def publier_edition(html_final, titre_revue, numero_edition, sous_titre, date_fin):
+    PUBLICATION_DIR.mkdir(exist_ok=True)
+    nom_fichier = f"revue_{date_fin.isoformat()}.html"
+    chemin = PUBLICATION_DIR / nom_fichier
+
+    with open(chemin, "w", encoding="utf-8") as f:
+        f.write(html_final)
+    # copie toujours a jour, pratique pour un lien fixe
+    with open(PUBLICATION_DIR / "derniere_revue.html", "w", encoding="utf-8") as f:
+        f.write(html_final)
+
+    manifest = []
+    if MANIFEST_PUBLICATION.exists():
+        try:
+            with open(MANIFEST_PUBLICATION, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
+        except Exception:
+            manifest = []
+    manifest = [m for m in manifest if m.get("fichier") != nom_fichier]
+    manifest.append(
+        {
+            "fichier": nom_fichier,
+            "titre": titre_revue,
+            "numero": numero_edition,
+            "date": sous_titre,
+        }
+    )
+    manifest.sort(key=lambda m: m["fichier"])
+    with open(MANIFEST_PUBLICATION, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+    return chemin
+
+
+# --------------------------------------------------------------------------
 # Fonctions utilitaires
 # --------------------------------------------------------------------------
 
@@ -495,16 +538,109 @@ def generer_html(titre_revue, numero_edition, sous_titre, intro, articles, theme
 # Interface Streamlit
 # --------------------------------------------------------------------------
 
-st.title("📰 Revue de presse de la DPIEC")
-st.caption(
-    "Deposez vos captures d'ecran, completez les quelques champs ci-dessous, "
-    "puis générez une page, reprenant l'identité visuelle in'li, a envoyer a vos collègues."
+st.markdown(
+    """
+<style>
+    .block-container { padding-top: 1.3rem; padding-bottom: 2rem; }
+    #MainMenu, footer {visibility: hidden;}
+    .bandeau-app {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        background: linear-gradient(120deg, #013E42 0%, #004E52 55%, #0C6E70 100%);
+        padding: 26px 30px 24px;
+        margin-bottom: 10px;
+        box-shadow: 0 14px 30px -18px rgba(0, 20, 20, 0.55);
+    }
+    .bandeau-app::after {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -40px;
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(235, 41, 93, 0.35), transparent 70%);
+        pointer-events: none;
+    }
+    .bandeau-app .ligne-haut {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .bandeau-app .icone {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .bandeau-app h1 {
+        color: #FFFFFF;
+        font-family: "Source Sans Pro", sans-serif;
+        font-weight: 800;
+        font-size: 1.65rem;
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+    .bandeau-app .sous-titre {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.94rem;
+        margin: 8px 0 0 60px;
+        max-width: 64ch;
+    }
+    .badge-brouillon {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 14px 0 0 60px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        color: #FFFFFF;
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 5px 14px;
+        border-radius: 999px;
+    }
+    @media (max-width: 640px) {
+        .bandeau-app .sous-titre, .badge-brouillon { margin-left: 0; margin-top: 12px; }
+    }
+</style>
+""",
+    unsafe_allow_html=True,
 )
-if st.session_state.articles:
-    st.caption(
-        f"💾 {len(st.session_state.articles)} article(s) enregistré(s) automatiquement sur cet ordinateur "
-        "— vous pouvez fermer la session et reprendre plus tard."
-    )
+
+_ICONE_JOURNAL_SVG = """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="3" y="4" width="18" height="16" rx="2" stroke="#FFFFFF" stroke-width="1.6"/>
+  <line x1="6.5" y1="8" x2="12" y2="8" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="6.5" y1="11" x2="17.5" y2="11" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="6.5" y1="14" x2="17.5" y2="14" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="6.5" y1="17" x2="14" y2="17" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+</svg>"""
+
+_badge_brouillon_html = (
+    f'<div class="badge-brouillon">💾 {len(st.session_state.articles)} article(s) enregistré(s) '
+    'automatiquement — vous pouvez fermer la session et reprendre plus tard</div>'
+    if st.session_state.articles
+    else ""
+)
+
+st.markdown(
+    f"""
+<div class="bandeau-app">
+  <div class="ligne-haut">
+    <div class="icone">{_ICONE_JOURNAL_SVG}</div>
+    <h1>Revue de presse de la DPIEC</h1>
+  </div>
+  <p class="sous-titre">Déposez vos captures d'écran, complétez les quelques champs ci-dessous, puis générez une page reprenant l'identité visuelle in'li — à envoyer ou publier pour vos collègues.</p>
+  {_badge_brouillon_html}
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
 with st.sidebar:
     st.header("Informations generales")
@@ -696,15 +832,30 @@ if st.session_state.articles:
         st.components.v1.html(html_final, height=800, scrolling=True)
 
     nom_fichier = f"revue_presse_dpiec_{date_debut.strftime('%Y%m%d')}.html"
-    st.download_button(
-        "⬇️ Telecharger la revue (fichier HTML)",
-        data=html_final.encode("utf-8"),
-        file_name=nom_fichier,
-        mime="text/html",
-        use_container_width=True,
-    )
+
+    col_dl, col_pub = st.columns(2)
+    with col_dl:
+        st.download_button(
+            "⬇️ Telecharger (fichier HTML)",
+            data=html_final.encode("utf-8"),
+            file_name=nom_fichier,
+            mime="text/html",
+            use_container_width=True,
+        )
+    with col_pub:
+        if st.button("📤 Publier pour vos collègues", use_container_width=True, type="primary"):
+            chemin_publie = publier_edition(
+                html_final, titre_revue, numero_edition, sous_titre, date_fin
+            )
+            st.success(f"Édition publiée ✅ ({chemin_publie.name})")
+
     st.caption(
-        "Le fichier HTML est autonome (images incluses) : joignez-le a un mail, "
+        "Telecharger : le fichier HTML est autonome, a joindre a un mail ou deposer sur l'intranet. "
+        "Publier : enregistre cette edition dans revues_publiees/, lue automatiquement par l'app de "
+        "consultation destinee a vos collègues."
+    )
+else:
+    st.info("Ajoutez au moins un article pour pouvoir generer la revue.")
         "deposez-le sur l'intranet/SharePoint, ou ouvrez-le directement dans un navigateur."
     )
 else:
