@@ -83,29 +83,58 @@ if "editing_id" not in st.session_state:
 
 
 # --------------------------------------------------------------------------
-# Publication pour les destinataires — ecrit l'edition dans un dossier partage
-# lu par l'app de consultation (revue_presse_consultation.py)
+# Publication pour les destinataires — ecrit l'edition dans un dossier
+# configurable (ideal : votre SharePoint synchronise via OneDrive), lu par
+# l'app de consultation (revue_presse_consultation.py)
 # --------------------------------------------------------------------------
 
-PUBLICATION_DIR = DOSSIER_APP / "revues_publiees"
-MANIFEST_PUBLICATION = PUBLICATION_DIR / "manifest.json"
+CONFIG_PATH = DOSSIER_APP / "config_app.json"
+DOSSIER_PUBLICATION_DEFAUT = str(DOSSIER_APP / "revues_publiees")
+
+
+def charger_config():
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def sauvegarder_config():
+    try:
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump({"dossier_publication": st.session_state.dossier_publication}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+
+if "dossier_publication" not in st.session_state:
+    _config = charger_config()
+    st.session_state.dossier_publication = _config.get(
+        "dossier_publication", DOSSIER_PUBLICATION_DEFAUT
+    )
 
 
 def publier_edition(html_final, titre_revue, numero_edition, sous_titre, date_fin):
-    PUBLICATION_DIR.mkdir(exist_ok=True)
+    dossier_publication = Path(st.session_state.dossier_publication)
+    dossier_publication.mkdir(parents=True, exist_ok=True)
+    manifest_publication = dossier_publication / "manifest.json"
+
     nom_fichier = f"revue_{date_fin.isoformat()}.html"
-    chemin = PUBLICATION_DIR / nom_fichier
+    chemin = dossier_publication / nom_fichier
 
     with open(chemin, "w", encoding="utf-8") as f:
         f.write(html_final)
     # copie toujours a jour, pratique pour un lien fixe
-    with open(PUBLICATION_DIR / "derniere_revue.html", "w", encoding="utf-8") as f:
+    with open(dossier_publication / "derniere_revue.html", "w", encoding="utf-8") as f:
         f.write(html_final)
 
     manifest = []
-    if MANIFEST_PUBLICATION.exists():
+    if manifest_publication.exists():
         try:
-            with open(MANIFEST_PUBLICATION, "r", encoding="utf-8") as f:
+            with open(manifest_publication, "r", encoding="utf-8") as f:
                 manifest = json.load(f)
         except Exception:
             manifest = []
@@ -119,7 +148,7 @@ def publier_edition(html_final, titre_revue, numero_edition, sous_titre, date_fi
         }
     )
     manifest.sort(key=lambda m: m["fichier"])
-    with open(MANIFEST_PUBLICATION, "w", encoding="utf-8") as f:
+    with open(manifest_publication, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
 
     return chemin
@@ -853,10 +882,6 @@ if st.session_state.articles:
         "Telecharger : le fichier HTML est autonome, a joindre a un mail ou deposer sur l'intranet. "
         "Publier : enregistre cette edition dans revues_publiees/, lue automatiquement par l'app de "
         "consultation destinee a vos collègues."
-    )
-else:
-    st.info("Ajoutez au moins un article pour pouvoir generer la revue.")
-        "deposez-le sur l'intranet/SharePoint, ou ouvrez-le directement dans un navigateur."
     )
 else:
     st.info("Ajoutez au moins un article pour pouvoir generer la revue.")
