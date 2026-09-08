@@ -1,5 +1,6 @@
+
 """
-Revue de presse de la DPIEC - app Streamlit
+Revue de presse de la DPIEC — app Streamlit
 =============================================
 Reproduit l'identite visuelle in'li (ruban rose, bandeau teal, logo,
 liseret rayures) de la revue Canva actuelle, en remplacant uniquement
@@ -652,7 +653,7 @@ _ICONE_JOURNAL_SVG = """<svg width="24" height="24" viewBox="0 0 24 24" fill="no
 
 _badge_brouillon_html = (
     f'<div class="badge-brouillon">💾 {len(st.session_state.articles)} article(s) enregistré(s) '
-    'automatiquement, vous pouvez fermer la session et reprendre plus tard</div>'
+    'automatiquement — vous pouvez fermer la session et reprendre plus tard</div>'
     if st.session_state.articles
     else ""
 )
@@ -664,7 +665,7 @@ st.markdown(
     <div class="icone">{_ICONE_JOURNAL_SVG}</div>
     <h1>Revue de presse de la DPIEC</h1>
   </div>
-  <p class="sous-titre">Déposez vos captures d'écran, complétez les quelques champs ci-dessous, puis générez une page reprenant l'identité visuelle in'li ; à envoyer ou publier pour vos collègues.</p>
+  <p class="sous-titre">Déposez vos captures d'écran, complétez les quelques champs ci-dessous, puis générez une page reprenant l'identité visuelle in'li — à envoyer ou publier pour vos collègues.</p>
   {_badge_brouillon_html}
 </div>
 """,
@@ -700,6 +701,23 @@ with st.sidebar:
     if _nouveaux_themes and _nouveaux_themes != st.session_state.themes:
         st.session_state.themes = _nouveaux_themes
         sauvegarder_brouillon()
+
+    st.divider()
+    st.header("Publication")
+    _dossier_saisi = st.text_input(
+        "Dossier de publication",
+        value=st.session_state.dossier_publication,
+        help=(
+            "Collez ici le chemin local de votre dossier SharePoint synchronise via OneDrive "
+            r"(ex. C:\Users\vous\IN'LI\NomDuSite - Documents\RevueDePresse). "
+            "Les editions publiees y seront deposees, puis synchronisees automatiquement vers "
+            "SharePoint par OneDrive. Ce reglage est mémorisé d'une session a l'autre."
+        ),
+    )
+    if _dossier_saisi != st.session_state.dossier_publication:
+        st.session_state.dossier_publication = _dossier_saisi
+        sauvegarder_config()
+    st.caption(f"📁 {st.session_state.dossier_publication}")
 
 st.divider()
 
@@ -808,7 +826,7 @@ else:
                     }
                 )
                 sauvegarder_brouillon()
-                st.success("✅ Article ajouté et enregistré automatiquement.")
+                st.success("Article ajoute — et enregistré automatiquement.")
 
 st.divider()
 col_titre_liste, col_vider = st.columns([4, 1])
@@ -876,7 +894,7 @@ if st.session_state.articles:
             chemin_publie = publier_edition(
                 html_final, titre_revue, numero_edition, sous_titre, date_fin
             )
-            st.success(f"Édition publiée ✅ ({chemin_publie.name})")
+            st.success(f"Édition publiée ✅ dans {chemin_publie}")
 
     st.caption(
         "Telecharger : le fichier HTML est autonome, a joindre a un mail ou deposer sur l'intranet. "
