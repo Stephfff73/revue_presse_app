@@ -23,8 +23,32 @@ import streamlit as st
 st.set_page_config(page_title="Revue de presse - DPIEC", page_icon="📰", layout="wide")
 
 DOSSIER_APP = Path(__file__).resolve().parent
-PUBLICATION_DIR = DOSSIER_APP / "revues_publiees"
-MANIFEST_PUBLICATION = PUBLICATION_DIR / "manifest.json"
+CONFIG_PATH = DOSSIER_APP / "config_app.json"
+DOSSIER_PUBLICATION_DEFAUT = str(DOSSIER_APP / "revues_publiees")
+
+
+def charger_config():
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def sauvegarder_config():
+    try:
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump({"dossier_publication": st.session_state.dossier_publication}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+
+if "dossier_publication" not in st.session_state:
+    st.session_state.dossier_publication = charger_config().get(
+        "dossier_publication", DOSSIER_PUBLICATION_DEFAUT
+    )
 
 st.markdown(
     """
@@ -103,6 +127,21 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
+
+
+with st.expander("⚙️ Emplacement des revues publiées"):
+    _dossier_saisi = st.text_input(
+        "Dossier de publication (le même que celui réglé côté back-office, "
+        "ou le dossier local de votre SharePoint synchronisé via OneDrive)",
+        value=st.session_state.dossier_publication,
+    )
+    if _dossier_saisi != st.session_state.dossier_publication:
+        st.session_state.dossier_publication = _dossier_saisi
+        sauvegarder_config()
+        st.rerun()
+
+PUBLICATION_DIR = Path(st.session_state.dossier_publication)
+MANIFEST_PUBLICATION = PUBLICATION_DIR / "manifest.json"
 
 
 def charger_manifest():
