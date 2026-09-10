@@ -653,7 +653,7 @@ _ICONE_JOURNAL_SVG = """<svg width="24" height="24" viewBox="0 0 24 24" fill="no
 
 _badge_brouillon_html = (
     f'<div class="badge-brouillon">💾 {len(st.session_state.articles)} article(s) enregistré(s) '
-    'automatiquement — vous pouvez fermer la session et reprendre plus tard</div>'
+    'automatiquement, vous pouvez fermer la session et reprendre plus tard</div>'
     if st.session_state.articles
     else ""
 )
