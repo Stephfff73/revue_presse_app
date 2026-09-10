@@ -665,7 +665,7 @@ st.markdown(
     <div class="icone">{_ICONE_JOURNAL_SVG}</div>
     <h1>Revue de presse de la DPIEC</h1>
   </div>
-  <p class="sous-titre">Déposez vos captures d'écran, complétez les quelques champs ci-dessous, puis générez une page reprenant l'identité visuelle in'li — à envoyer ou publier pour vos collègues.</p>
+  <p class="sous-titre">Déposez vos captures d'écran, complétez les quelques champs ci-dessous, puis générez une page reprenant l'identité visuelle in'li, à envoyer ou publier pour vos collègues.</p>
   {_badge_brouillon_html}
 </div>
 """,
@@ -738,7 +738,7 @@ if article_en_edition:
     with st.form("formulaire_edition"):
         st.image(article_en_edition["image"], width=160)
         nouvelle_image = st.file_uploader(
-            "Remplacer la capture d'ecran (optionnel — laisser vide pour garder l'actuelle)",
+            "Remplacer la capture d'ecran (optionnel : laisser vide pour garder l'actuelle)",
             type=["png", "jpg", "jpeg", "webp"],
         )
         col_a, col_b = st.columns(2)
@@ -826,7 +826,7 @@ else:
                     }
                 )
                 sauvegarder_brouillon()
-                st.success("Article ajoute — et enregistré automatiquement.")
+                st.success("Article ajouté et enregistré automatiquement.")
 
 st.divider()
 col_titre_liste, col_vider = st.columns([4, 1])
